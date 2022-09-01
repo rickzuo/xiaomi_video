@@ -20,7 +20,7 @@ def merge_vids(vidlist_file: str, tofile: str):
         cmd = f"ffmpeg -f concat -safe 0 -i {vidlist_file} -c:v copy -c:a flac -strict -2 {tofile}"
         subprocess.run(cmd)
     else:
-        cmd = f"ffmpeg -f concat -safe 0 -i {vidlist_file} -c:v copy -c:a aac -strict -2 {tofile}"
+        cmd = f"ffmpeg -y -f concat -safe 0 -i {vidlist_file} -c:v copy -c:a aac -strict -2 {tofile}"
         subprocess.run(cmd,shell=True)
 
 def merge_dirs(indir: str, outdir: str, date_name: str, parent_path: str):
