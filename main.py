@@ -1,4 +1,5 @@
 import argparse
+import os
 import subprocess
 from pathlib import Path
 
@@ -23,6 +24,9 @@ def merge_vids(vidlist_file: str, tofile: str):
         cmd = f"ffmpeg -y -f concat -safe 0 -i {vidlist_file} -c:v copy -c:a aac -strict -2 {tofile}"
         subprocess.run(cmd,shell=True)
 
+def has_subdirectories(directory):
+    subdirectories = [item for item in os.listdir(directory) if os.path.isdir(os.path.join(directory, item))]
+    return bool(subdirectories)
 def merge_dirs(indir: str, outdir: str, date_name: str, parent_path: str):
     """合并目录下的监控文件，在当前目录生成以天为单位的视频。
     indir 结构：
@@ -39,7 +43,9 @@ def merge_dirs(indir: str, outdir: str, date_name: str, parent_path: str):
 
     date_dict = {}
 
-
+    if Path(indir).is_file():
+        print("indir is file:", indir)
+        return
     # 小米第一代文件目录有多层
     for d in Path(indir).iterdir():
         if d.is_file():
@@ -59,7 +65,8 @@ def merge_dirs(indir: str, outdir: str, date_name: str, parent_path: str):
             mp4_list = list(Path(d).glob("*.mp4"))
             videos.extend(mp4_list)
 
-        if len(videos) == 0:
+        print("data_dict:",d,has_subdirectories(Path(d)))
+        if len(videos) == 0 and Path(d).is_dir() and has_subdirectories(Path(d)):
             # 往下层递归
             merge_dirs(Path(d), outdir, date_name, ds_date)
         logger.info(f"{ds_date}, {len(videos)} videos")
